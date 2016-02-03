@@ -44,6 +44,7 @@ public class CityQuery {
             while (cursor.moveToNext()) {
                 String name = cursor.getString(cursor.getColumnIndex("city_name"));
                 cityList.add(name);
+                Log.d("city",name);
             }
             cursor.close();
         }

@@ -1,12 +1,10 @@
 package saysai.app.easyweather.Activity;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -33,10 +31,11 @@ public class ChooseCityActivity extends Activity {
     private ListView listView;
     private ArrayAdapter<String> adapter;
     private List<String> datalist = new ArrayList<String>();
-    private List<String> templist = new ArrayList<String>();
 
     private int currentLevel;
-    private String current_selected;
+    private String currentProvince;
+    private String currentCity;
+    private String currentCounty;
     @Override
     protected  void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -46,38 +45,38 @@ public class ChooseCityActivity extends Activity {
         titleText = (TextView) findViewById(R.id.title_text);
         adapter = new ArrayAdapter<String>(ChooseCityActivity.this,android.R.layout.simple_list_item_1,datalist);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new OnItemClickListener() {
+
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
                 if (currentLevel == LEVEL_PROVINCE) {
-                    current_selected = datalist.get(index);
-                    if (CityQuery.getCityListByProvince(current_selected).size() > 0) {
+                    currentProvince = datalist.get(index);
+                    if (CityQuery.getCityListByProvince(currentProvince).size() > 0) {
                         datalist.clear();
-                        for (String city : CityQuery.getCityListByProvince(current_selected)) {
+                        for (String city : CityQuery.getCityListByProvince(currentProvince)) {
                             datalist.add(city);
                         }
                     }
-                    adapter.notifyDataSetChanged();
-                    listView.setSelection(0);
-                    titleText.setText(current_selected);
+                    titleText.setText(currentProvince);
                     currentLevel = LEVEL_CITY;
                 } else if (currentLevel == LEVEL_CITY) {
-                    current_selected = datalist.get(index);
-                    if (CityQuery.getAreaListByCity(current_selected).size() > 0) {
+                    currentCity = datalist.get(index);
+                    if (CityQuery.getAreaListByCity(currentCity).size() > 0) {
                         datalist.clear();
-                        for (String area : CityQuery.getAreaListByCity(current_selected)) {
+                        for (String area : CityQuery.getAreaListByCity(currentCity)) {
                             datalist.add(area);
                         }
                     }
-                    adapter.notifyDataSetChanged();
-                    listView.setSelection(0);
-                    titleText.setText(current_selected);
+                    titleText.setText(currentCity);
                     currentLevel = LEVEL_COUNTY;
                 } else if (currentLevel == LEVEL_COUNTY) {
-                    current_selected = datalist.get(index);
+                    currentCounty = datalist.get(index);
                     Toast.makeText(ChooseCityActivity.this,
-                            CityQuery.getWeatherIdByAreaName(current_selected), Toast.LENGTH_SHORT).show();
+                            "weatherID: "+CityQuery.getWeatherIdByAreaName(currentCounty), Toast.LENGTH_SHORT).show();
                 }
+                adapter.notifyDataSetChanged();
+                listView.setSelection(0);
             }
         });
         if (CityQuery.getProvinceList().size() > 0) {
@@ -90,6 +89,7 @@ public class ChooseCityActivity extends Activity {
         listView.setSelection(0);
         titleText.setText("中国");
         currentLevel = LEVEL_PROVINCE;
+
     }
 
 
@@ -145,22 +145,37 @@ public class ChooseCityActivity extends Activity {
         }
     }
 
+
+    
     /**
      * 捕获Back按键，根据当前的级别来判断，此时应该返回市列表、省列表、还是直接退出。
      */
     @Override
     public void onBackPressed() {
         if (currentLevel == LEVEL_COUNTY) {
-            queryCities();
-        } else if (currentLevel == LEVEL_CITY) {
-            queryProvinces();
-        } else {
-            if (isFromWeatherActivity) {
-                Intent intent = new Intent(this, WeatherActivity.class);
-                startActivity(intent);
+            if (CityQuery.getCityListByProvince(currentProvince).size() > 0) {
+                datalist.clear();
+                for (String area : CityQuery.getCityListByProvince(currentProvince)) {
+                    datalist.add(area);
+                }
             }
+            titleText.setText(currentProvince);
+            currentLevel = LEVEL_CITY;
+        } else if (currentLevel == LEVEL_CITY) {
+            if (CityQuery.getProvinceList().size() > 0) {
+                datalist.clear();
+                for (String province : CityQuery.getProvinceList()) {
+                    datalist.add(province);
+                }
+            }
+            titleText.setText("中国");
+            currentLevel = LEVEL_PROVINCE;
+        } else {
             finish();
         }
+        adapter.notifyDataSetChanged();
+        listView.setSelection(0);
+
     }
 
 
