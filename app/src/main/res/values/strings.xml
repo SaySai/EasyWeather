@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EasyWeather</string>
+    <string name="search_city">搜索城市</string>
 </resources>
