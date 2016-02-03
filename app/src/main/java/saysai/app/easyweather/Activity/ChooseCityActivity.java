@@ -1,6 +1,7 @@
 package saysai.app.easyweather.Activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -8,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +19,7 @@ import java.util.List;
 
 import saysai.app.easyweather.Database.CityQuery;
 import saysai.app.easyweather.R;
+
 
 /**
  * Created by isay on 2/2/2016.
@@ -36,6 +37,7 @@ public class ChooseCityActivity extends Activity {
     private String currentProvince;
     private String currentCity;
     private String currentCounty;
+    private String  weatherID;
     @Override
     protected  void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -72,8 +74,11 @@ public class ChooseCityActivity extends Activity {
                     currentLevel = LEVEL_COUNTY;
                 } else if (currentLevel == LEVEL_COUNTY) {
                     currentCounty = datalist.get(index);
-                    Toast.makeText(ChooseCityActivity.this,
-                            "weatherID: "+CityQuery.getWeatherIdByAreaName(currentCounty), Toast.LENGTH_SHORT).show();
+                    weatherID = CityQuery.getWeatherIdByAreaName(currentCounty);
+                    Intent intent = new Intent(ChooseCityActivity.this,WeatherActivity.class);
+                    intent.putExtra("weatherID",weatherID);
+                    startActivity(intent);
+                    finish();
                 }
                 adapter.notifyDataSetChanged();
                 listView.setSelection(0);
@@ -177,6 +182,10 @@ public class ChooseCityActivity extends Activity {
         listView.setSelection(0);
 
     }
+
+
+
+
 
 
 
